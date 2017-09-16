@@ -1,0 +1,123 @@
+﻿<controls:MetroWindow
+    x:Class="ERP.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        mc:Ignorable="d"
+        Title="ERP System" MinHeight="500" Height="600" MinWidth="1020" Width="1020" MaxWidth="1020"
+                     xmlns:chart="clr-namespace:De.TorstenMandelkow.MetroChart;assembly=De.TorstenMandelkow.MetroChart"
+        DataContext="{Binding Source={StaticResource mainViewModelLocator}, Path=MainWindowViewModel}"
+        >
+    <Window.Resources>
+        <CollectionViewSource Source="{Binding Employees}" x:Key="Collection"/>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250" MaxWidth="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <DockPanel Grid.Column="0">
+            <ComboBox DockPanel.Dock="Top" x:Name="Positions" ItemsSource="{Binding Positions}" SelectedItem="{Binding SelectedPosition, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0"/>
+            <Button DockPanel.Dock="Top" x:Name="ClearFilter" Margin="5,0" Command="{Binding ResetFilter, Mode=OneWay}">Clear Filter</Button>
+            <ListView Margin="5"
+                  Name="EmployeesListView"
+                  ItemsSource="{Binding Source={StaticResource Collection}}"
+                  SelectedItem="{Binding SelectedEmployee}">
+                <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderBrush="#CCCCCC" BorderThickness="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Image Grid.Column="0" Grid.Row="0" Height="60" Grid.RowSpan="2" Source="{Binding UserPic}">
+                                <Image.OpacityMask>
+                                    <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+                                        <GradientStop Color="#ffffffff" Offset="0.8" />
+                                        <GradientStop Color="#00ffffff" Offset="0.8" />
+                                    </RadialGradientBrush>
+                                </Image.OpacityMask>
+                            </Image>
+                            <StackPanel Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
+                                    <TextBlock Text="{Binding FirstName, Converter={StaticResource firstToUpper}}"/>
+                                <TextBlock Text=" "/>
+                                    <TextBlock Text="{Binding LastName, Converter={StaticResource firstToUpper}}"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Position}"/>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        </DockPanel>
+        <DockPanel Grid.Column="1">
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Width="auto">
+                <StackPanel Orientation="Vertical" Width="250">
+                    <Image Source="{Binding SelectedEmployee.UserPic}" Height="250">
+                        <Image.OpacityMask>
+                            <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+                                <GradientStop Color="#ffffffff" Offset="0.8" />
+                                <GradientStop Color="#00ffffff" Offset="0.8" />
+                            </RadialGradientBrush>
+                        </Image.OpacityMask>
+                    </Image>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Label HorizontalAlignment="Center" Height="30" Content="{Binding SelectedEmployee.FirstName, Mode=OneWay, Converter={StaticResource firstToUpper}}"></Label>
+                        <Label HorizontalAlignment="Center" Height="30" Content="{Binding SelectedEmployee.LastName, Mode=OneWay, Converter={StaticResource firstToUpper}}"></Label>
+                    </StackPanel>
+                    <Expander Margin="5" Header="More" Height="130">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Label Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Content="ID: "/>
+                            <Label Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" Content="{Binding SelectedEmployee.UniqueId, Mode=OneWay}"/>
+                            <Label Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Content="Birthday: "/>
+                            <TextBlock Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" Text="{Binding SelectedEmployee.Birthday, Mode=OneWay, StringFormat=d, ConverterCulture=ru-RU}"/>
+                            <Label Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Content="Address: "/>
+                            <Label Grid.Column="1" Grid.Row="2" VerticalAlignment="Center" Content="{Binding SelectedEmployee.City, Mode=OneWay, Converter={StaticResource firstToUpper}}"/>
+                        </Grid>
+                    </Expander>
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <chart:StackedBarChart Margin="5" Width="500" VerticalAlignment="Top"
+                                       Style="{StaticResource MinimalChartStyle}"
+                                       ChartTitle="Indicators"
+                                       ChartSubTitle="of work quality (%)" 
+                                       SelectedItem="{Binding SelectedEmployee.Rating, Mode=OneWay}">
+                        <chart:StackedBarChart.Series>
+                            <chart:ChartSeries DisplayMember="Category"  ValueMember="Number" ItemsSource="{Binding Path=SelectedEmployee.Rating, Mode=OneWay}"/>
+                        </chart:StackedBarChart.Series>
+                    </chart:StackedBarChart>
+                    <Button Command="{Binding AddCommand}" Margin="5" Content="Add an employee"/>
+                    <Button Command="{Binding EditCommand}" Margin="5" Content="Change the employee"/>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Left">
+                <DataGrid x:Name="TasksDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding Path=SelectedEmployee.Tasks}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Customer" Binding="{Binding Customer}"/>
+                        <DataGridTextColumn Header="Project Name" Binding="{Binding ProjectName}"/>
+                        <DataGridTextColumn Header="Date from" Binding="{Binding DateBegin, ConverterCulture=ru-RU}"/>
+                        <DataGridTextColumn Header="Date to" Binding="{Binding DateEnd, ConverterCulture=ru-RU}"/>
+                        <DataGridTextColumn Header="Completed, %" Binding="{Binding PercentCompleted}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</controls:MetroWindow>
