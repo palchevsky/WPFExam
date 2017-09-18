@@ -1,2 +1,2 @@
 # WPFExam
-Project for for WPF exam
+Project for WPF exam
